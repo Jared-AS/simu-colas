@@ -28,7 +28,6 @@ while tiempo < tiempoSimulacion
     nextStep()
     if(entraSiguienteCliente())
         Servidor.atenderCliente()
-        dequeue!(clientes)
         mostrarCliente(Generadores.nextClient())
     end
 
