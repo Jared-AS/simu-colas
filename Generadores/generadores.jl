@@ -43,8 +43,8 @@ end
 
 #generador con distribucion uniforme continua
 function getTiempoEspera()
-    a = 30
-    b = 45
+    a = 3
+    b = 5
     nextRandom()
     return round(a + r * (b - a))
 end
