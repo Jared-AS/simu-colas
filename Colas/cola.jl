@@ -1,15 +1,21 @@
 include("../Generadores/generadores.jl")
+include("../Generadores/estadistico.jl")
 include("./servidor.jl")
-import Generadores, Servidor
+import Generadores, Servidor, Estadistico
 using DataStructures, HypothesisTests
 
+#
+tiempoPromedioDeServicio = 3
+tiempoPromedioDeLlegada = 4
+#
+
 clientes = Queue(Any)
-siguienteCliente = Generadores.nextClient()
+siguienteCliente = Generadores.nextClient(tiempoPromedioDeLlegada)
 tiempoLlegadaSiguienteCliente = siguienteCliente.tiempoLlegada
 tiempoEnCola = zeros(100)
 
 tiempo = siguienteCliente.tiempoLlegada
-tiempoSimulacion = 50
+tiempoSimulacion = 10
 
 function mostrarCliente(c)
     println("clienteNo:", c.numero, " tLlegada: ", c.tiempoLlegada, " tEspera:", c.tiempoEspera)
@@ -65,7 +71,7 @@ function nextStep()
     if(tiempoLlegadaSiguienteCliente == 0)
         enqueue!(clientes, siguienteCliente)
         println("El cliente ", siguienteCliente.numero, " entra a la cola.")
-        global siguienteCliente = Generadores.nextClient()
+        global siguienteCliente = Generadores.nextClient(tiempoPromedioDeLlegada)
         tiempoLlegadaSiguienteCliente = siguienteCliente.tiempoLlegada
         println("El cliente ", siguienteCliente.numero, " llega en: ", tiempoLlegadaSiguienteCliente)
     end
@@ -76,13 +82,12 @@ while tiempo <= tiempoSimulacion
     Servidor.nextStep()
     if(entraSiguienteCliente())
         x = dequeue!(clientes)
-        Servidor.atenderCliente(x)
-        #mostrarCliente(x)
+        Servidor.atenderCliente(x, tiempoPromedioDeServicio)
+        #mostrarCliente(x),
     end
     #@time sleep(2)
 end
 
-println("####################################################################################")
 tiempoEnCola = tiempoEnCola[1:siguienteCliente.numero-1]
-println("Intervalo de confianza del 95% para tiempo de espera en cola: ")
-println(confint(OneSampleTTest(tiempoEnCola), 0.05))
+intcf = confint(OneSampleTTest(tiempoEnCola), 0.05)
+Estadistico.datos(tiempoEnCola, tiempoPromedioDeLlegada, tiempoPromedioDeServicio, intcf)

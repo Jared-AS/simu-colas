@@ -18,9 +18,9 @@ struct Cliente
 end
 
 #generador de clientes
-function nextClient()
+function nextClient(promedio)
     global n += 1
-    sgteLlegada = siguienteLlegada()
+    sgteLlegada = generadorExponencial(promedio)
     if(esperaEnCola())
         return Cliente(n, sgteLlegada, -1)
     else
@@ -35,12 +35,6 @@ function esperaEnCola()
     return r < 0.5 ? true : false
 end
 
-#generador con distribucion exponencial
-function siguienteLlegada()
-    promedio = 2
-    return generadorExponencial(promedio)
-end
-
 #generador con distribucion uniforme continua
 function getTiempoEspera()
     a = 3
@@ -49,6 +43,7 @@ function getTiempoEspera()
     return round(a + r * (b - a))
 end
 
+#generador exponencial
 function generadorExponencial(promedio)
     nextRandom()    
     t = round(-promedio * log(r))
